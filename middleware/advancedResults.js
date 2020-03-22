@@ -1,31 +1,31 @@
 const advancedResults = (model, populate) => async (req, res, next) => {
   let query;
 
-  //Copy req.query
+  // Copy req.query
   const reqQuery = {...req.query};
 
-  //Fields to exclude
+  // Fields to exclude
   const removeFields = ['select', 'sort', 'page', 'limit'];
 
-  //Loop over removeFields and delete them from reqQuery
+  // Loop over removeFields and delete them from reqQuery
   removeFields.forEach(param => delete reqQuery[param]);
 
-  //Create query string
+  // Create query string
   let queryStr = JSON.stringify(reqQuery);
 
-  //Create operators($gt,$gte,etc)
+  // Create operators ($gt, $gte, etc)
   queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
 
-  //Finding resouce
+  // Finding resource
   query = model.find(JSON.parse(queryStr));
 
-  //Select Fields
+  // Select Fields
   if (req.query.select) {
     const fields = req.query.select.split(',').join(' ');
     query = query.select(fields);
   }
 
-  //Sort
+  // Sort
   if (req.query.sort) {
     const sortBy = req.query.sort.split(',').join(' ');
     query = query.sort(sortBy);
@@ -33,7 +33,7 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     query = query.sort('-createdAt');
   }
 
-  //Pagination
+  // Pagination
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 25;
   const startIndex = (page - 1) * limit;
@@ -46,10 +46,10 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     query = query.populate(populate);
   }
 
-  //Executing query
+  // Executing query
   const results = await query;
 
-  //Pagination result
+  // Pagination result
   const pagination = {};
 
   if (endIndex < total) {
@@ -58,6 +58,7 @@ const advancedResults = (model, populate) => async (req, res, next) => {
       limit
     };
   }
+
   if (startIndex > 0) {
     pagination.prev = {
       page: page - 1,
@@ -71,6 +72,7 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     pagination,
     data: results
   };
+
   next();
 };
 
