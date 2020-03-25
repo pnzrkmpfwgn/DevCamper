@@ -7,7 +7,7 @@ const {
   deleteUser
 } = require('../controllers/users');
 
-const User = require('../Models/Course');
+const User = require('../Models/User');
 
 const router = express.Router({mergeParams: true});
 
